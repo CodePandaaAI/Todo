@@ -137,8 +137,7 @@ fun AddTodoDialog(onSaveTodo: (title: String, text: String) -> Unit, onDismiss: 
 
                 OutlinedButton(onClick = {
                     onSaveTodo(title, text)
-                    // Disabled for testing
-//                    onDismiss()
+                    onDismiss()
                 }
                 ) {
                     Text("Save Todo")
