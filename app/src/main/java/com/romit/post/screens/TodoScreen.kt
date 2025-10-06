@@ -10,9 +10,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
+import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -66,13 +66,13 @@ fun TodoScreen(
         }
         return
     }
-    LazyVerticalGrid(
+    LazyVerticalStaggeredGrid(
         modifier = modifier
             .background(MaterialTheme.colorScheme.surfaceContainer)
             .fillMaxSize(),
-        columns = GridCells.Fixed(2),
+        columns = StaggeredGridCells.Fixed(2),
         contentPadding = PaddingValues(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalItemSpacing = 8.dp,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(uiState) { task ->
@@ -90,7 +90,7 @@ fun TodoCard(title: String, text: String, modifier: Modifier) {
     ) {
 
         Column(
-            modifier = Modifier.padding(16.dp),
+            modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
@@ -137,7 +137,8 @@ fun AddTodoDialog(onSaveTodo: (title: String, text: String) -> Unit, onDismiss: 
 
                 OutlinedButton(onClick = {
                     onSaveTodo(title, text)
-                    onDismiss()
+                    // Disabled for testing
+//                    onDismiss()
                 }
                 ) {
                     Text("Save Todo")
