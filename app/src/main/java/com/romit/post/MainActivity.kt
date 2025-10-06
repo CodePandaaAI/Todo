@@ -16,8 +16,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.romit.post.navigation.AppNavHost
 import com.romit.post.screens.AuthScreen
-import com.romit.post.screens.TodoScreen
 import com.romit.post.ui.theme.PostTheme
 
 class MainActivity : ComponentActivity() {
@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
                     }
                 }
                 else {
-                    TodoScreen(modifier = Modifier)
+                    AppNavHost()
                 }
             }
         }
