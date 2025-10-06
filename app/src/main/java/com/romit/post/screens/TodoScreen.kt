@@ -19,7 +19,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun TodoScreen(modifier: Modifier) {
+fun TodoScreen(modifier: Modifier = Modifier) {
     LazyVerticalGrid(
         modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer).fillMaxSize(),
         columns = GridCells.Fixed(2),

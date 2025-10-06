@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
+    id("org.jetbrains.kotlin.plugin.serialization")
 }
 
 android {
@@ -46,7 +47,10 @@ android {
 }
 
 dependencies {
-    // --- Add these dependencies for our internet app ---
+    // Serialization
+    implementation(libs.kotlinx.serialization.json)
+    // Navigation
+    implementation(libs.androidx.navigation.compose)
 
     // ViewModel for MVVM
     implementation(libs.androidx.lifecycle.viewmodel.compose)

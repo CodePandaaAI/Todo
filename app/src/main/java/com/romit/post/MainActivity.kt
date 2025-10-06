@@ -28,13 +28,13 @@ class MainActivity : ComponentActivity() {
             PostTheme {
                 val currentUser = rememberAuthState()
 
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    // This logic is now the single source of truth for navigation
-                    if (currentUser == null) {
+                if (currentUser == null) {
+                    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                         AuthScreen(modifier = Modifier.padding(innerPadding))
-                        return@Scaffold
                     }
-                    TodoScreen(modifier = Modifier.padding(innerPadding))
+                }
+                else {
+                    TodoScreen(modifier = Modifier)
                 }
             }
         }
