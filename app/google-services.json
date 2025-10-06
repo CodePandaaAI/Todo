@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "691826016849",
+    "project_id": "post-3424f",
+    "storage_bucket": "post-3424f.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:691826016849:android:201a4cb5303c9ede322e70",
+        "android_client_info": {
+          "package_name": "com.romit.post"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyComrmF0gWTZTsVNU7c60ZlnvBtfCz01vc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
