@@ -22,7 +22,7 @@ A simple To-Do list application for Android, built with Jetpack Compose and Fire
 
 | Login Screen                                 | To-Do List Screen (Planned)                                  |
 |----------------------------------------------|--------------------------------------------------------------|
-| *[Add a screenshot of your AuthScreen here]* | *[Add a screenshot of your TodoScreen here once it's built]* |
+| *<img width="240" alt="Image" src="https://github.com/user-attachments/assets/c1dd3663-dbb3-443f-9a19-f58670d1bfb2" />* | *<img width="240" alt="Image" src="https://github.com/user-attachments/assets/c6a1f346-cddd-42b9-b966-b63b6a0f572b" />* |
 
 ## Tech Stack & Architecture
 
