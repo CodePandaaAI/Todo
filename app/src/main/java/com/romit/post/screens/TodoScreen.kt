@@ -15,6 +15,7 @@ import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -35,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.romit.post.R
-import com.romit.post.viewmodels.TodoScreenViewModel
+import com.romit.post.viewmodels.todoscreen.TodoScreenViewModel
 
 @Composable
 fun TodoScreen(
@@ -48,11 +49,31 @@ fun TodoScreen(
 
     if (showDialog) {
         AddTodoDialog(
-            onSaveTodo = { title, text -> todoViewModel.addTodo(title, text) },
+            onSaveTodo = { title, text ->
+                todoViewModel.addTodo(
+                    title,
+                    text,
+                    onDismiss = { onDismissDialog() })
+            },
             onDismiss = { onDismissDialog() })
     }
+    when {
+        uiState.isLoading -> {
+            Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+            return
+        }
 
-    if (uiState.isEmpty()) {
+        uiState.errorMessage != null -> {
+            Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(uiState.errorMessage!!)
+            }
+            return
+        }
+    }
+
+    if (uiState.tasks.isEmpty()) {
         Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             Image(
                 painter = painterResource(R.drawable.no_todo),
@@ -75,7 +96,7 @@ fun TodoScreen(
         verticalItemSpacing = 8.dp,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        items(uiState) { task ->
+        items(uiState.tasks) { task ->
             TodoCard(task.title, task.text, modifier = Modifier)
         }
     }
@@ -110,16 +131,17 @@ fun TodoCard(title: String, text: String, modifier: Modifier) {
 fun AddTodoDialog(onSaveTodo: (title: String, text: String) -> Unit, onDismiss: () -> Unit) {
     var title by remember { mutableStateOf("") }
     var text by remember { mutableStateOf("") }
+    var isSaveButtonVisible by remember { mutableStateOf(true) }
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(
             Modifier
                 .fillMaxWidth()
-                .padding(24.dp),
+                .padding(8.dp),
             color = MaterialTheme.colorScheme.surfaceContainerLowest,
             shape = RoundedCornerShape(24.dp)
         ) {
             Column(
-                modifier = Modifier.padding(16.dp),
+                modifier = Modifier.padding(8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -135,10 +157,11 @@ fun AddTodoDialog(onSaveTodo: (title: String, text: String) -> Unit, onDismiss: 
                     onValueChange = { text = it },
                     label = { Text("Text") })
 
-                OutlinedButton(onClick = {
-                    onSaveTodo(title, text)
-                    onDismiss()
-                }
+                OutlinedButton(
+                    onClick = {
+                        onSaveTodo(title, text)
+                        isSaveButtonVisible = !isSaveButtonVisible
+                    }, enabled = isSaveButtonVisible
                 ) {
                     Text("Save Todo")
                 }

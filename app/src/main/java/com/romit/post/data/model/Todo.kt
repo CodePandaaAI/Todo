@@ -1,4 +1,4 @@
-package com.romit.post.data
+package com.romit.post.data.model
 
 import com.google.firebase.firestore.DocumentId
 

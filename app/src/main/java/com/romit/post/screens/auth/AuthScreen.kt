@@ -22,7 +22,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.romit.post.R
 import com.romit.post.data.model.AuthModeConfig
 import com.romit.post.ui.theme.PostTheme
-import com.romit.post.viewmodels.AuthViewModel
+import com.romit.post.viewmodels.auth.AuthViewModel
 
 @Composable
 fun AuthScreen(modifier: Modifier = Modifier, authViewModel: AuthViewModel = viewModel()) {

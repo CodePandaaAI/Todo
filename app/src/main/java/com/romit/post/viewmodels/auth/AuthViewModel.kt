@@ -1,4 +1,4 @@
-package com.romit.post.viewmodels
+package com.romit.post.viewmodels.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
