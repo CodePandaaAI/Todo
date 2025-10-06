@@ -8,18 +8,29 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.input.TextObfuscationMode
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SecureTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -35,9 +46,16 @@ fun AuthScreen(modifier: Modifier, authViewModel: AuthViewModel = viewModel()) {
 
     val uiState by authViewModel.uiState.collectAsState()
 
+    // Create TextFieldState for password
+    val passwordState = rememberTextFieldState(initialText = uiState.userPassword)
+
+    // Track password visibility
+    var passwordHidden by rememberSaveable { mutableStateOf(true) }
 
     Column(
-        modifier = modifier.background(MaterialTheme.colorScheme.surfaceContainer).fillMaxSize(),
+        modifier = modifier
+            .background(MaterialTheme.colorScheme.surfaceContainer)
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -65,12 +83,28 @@ fun AuthScreen(modifier: Modifier, authViewModel: AuthViewModel = viewModel()) {
                     label = { Text("Email") },
                     modifier = Modifier.fillMaxWidth()
                 )
-                OutlinedTextField(
-                    value = uiState.userPassword,
-                    onValueChange = { authViewModel.changePassword(it) },
+
+                // New SecureTextField for password
+                SecureTextField(
+                    state = passwordState,
                     label = { Text("Password") },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    textObfuscationMode = if (passwordHidden)
+                        TextObfuscationMode.RevealLastTyped
+                    else
+                        TextObfuscationMode.Visible,
+                    trailingIcon = {
+                        val description = if (passwordHidden) "Show password" else "Hide password"
+                        IconButton(onClick = { passwordHidden = !passwordHidden }) {
+                            val visibilityIcon = if (passwordHidden)
+                                Icons.Filled.Visibility
+                            else
+                                Icons.Filled.VisibilityOff
+                            Icon(imageVector = visibilityIcon, contentDescription = description)
+                        }
+                    }
                 )
+
                 if (uiState.errorMessage != null) {
                     Text(uiState.errorMessage!!, color = MaterialTheme.colorScheme.error)
                 }
@@ -79,17 +113,21 @@ fun AuthScreen(modifier: Modifier, authViewModel: AuthViewModel = viewModel()) {
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedButton(
-                        onClick = { authViewModel.signUp() },
-                        enabled = uiState.userEmail.isNotBlank() && uiState.userPassword.isNotBlank()
+                        onClick = {
+                            authViewModel.changePassword(passwordState.text.toString())
+                            authViewModel.signUp()
+                        },
+                        enabled = uiState.userEmail.isNotBlank() && passwordState.text.isNotBlank()
                     ) {
                         Text("Sign Up")
                     }
                     Button(
-                        onClick = { authViewModel.signIn() },
-                        enabled = uiState.userEmail.isNotBlank() && uiState.userPassword.isNotBlank(),
-                        colors = ButtonDefaults.buttonColors(
-                            Color(0xff663399)
-                        )
+                        onClick = {
+                            authViewModel.changePassword(passwordState.text.toString())
+                            authViewModel.signIn()
+                        },
+                        enabled = uiState.userEmail.isNotBlank() && passwordState.text.isNotBlank(),
+                        colors = ButtonDefaults.buttonColors(Color(0xff663399))
                     ) {
                         Text("Sign In")
                     }
