@@ -53,7 +53,12 @@ fun TodoScreen(
             task = uiState.taskToEdit!!,
             isEditing = uiState.isEditInProgress,
             onUpdateTodo = { taskId, title, text -> todoViewModel.updateTodo(taskId, title, text) },
-            onDismiss = { if (!uiState.isEditInProgress) todoViewModel.onEditComplete() }
+            onDelete = {
+                todoViewModel.deleteTodo(uiState.taskToEdit!!.id)
+                if (!uiState.isEditInProgress) todoViewModel.onEditComplete()
+            },
+            onDismiss = { if (!uiState.isEditInProgress) todoViewModel.onEditComplete() },
+            modifier = Modifier.fillMaxWidth()
         )
     }
     when {

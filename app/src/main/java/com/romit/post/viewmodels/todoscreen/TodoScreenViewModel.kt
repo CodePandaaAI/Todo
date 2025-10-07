@@ -75,6 +75,24 @@ class TodoScreenViewModel : ViewModel() {
         }
     }
 
+    fun deleteTodo(taskId: String) {
+        if (taskId.isBlank()) {
+            println("Error: Task ID is blank, cannot delete.")
+            return
+        }
+        _uiState.update { it.copy(isEditInProgress = true, errorMessage = null) }
+        viewModelScope.launch {
+            try {
+                // Get a reference to the document and delete it
+                firestore.collection("todos").document(taskId).delete().await()
+                _uiState.update { it.copy(isEditInProgress = false) }
+
+            } catch (e: Exception) {
+
+            }
+        }
+    }
+
     fun onEditTask(task: Task) {
         _uiState.update { it.copy(showEditTodoDialog = true, taskToEdit = task) }
     }

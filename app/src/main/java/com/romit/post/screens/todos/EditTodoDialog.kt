@@ -5,10 +5,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -31,6 +34,7 @@ fun EditTodoDialog(
     onUpdateTodo: (taskId: String, title: String, text: String) -> Unit,
     isEditing: Boolean,
     onDismiss: () -> Unit,
+    onDelete: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Use the passed-in task's data to pre-fill the state
@@ -68,7 +72,17 @@ fun EditTodoDialog(
                     maxLines = 3,
                     modifier = modifier
                 )
-
+                Button(
+                    onClick = { onDelete() },
+                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                    modifier = modifier
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Delete Task"
+                    )
+                    Text("Delete Todo")
+                }
 
                 Button(
                     onClick = {
@@ -84,5 +98,6 @@ fun EditTodoDialog(
                 }
             }
         }
+
     }
 }
