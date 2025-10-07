@@ -1,4 +1,4 @@
-package com.romit.post.screens
+package com.romit.post.screens.todos
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

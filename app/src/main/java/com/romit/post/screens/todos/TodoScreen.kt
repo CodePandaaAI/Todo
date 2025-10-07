@@ -24,7 +24,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.romit.post.R
-import com.romit.post.screens.TodoCard
 import com.romit.post.viewmodels.todoscreen.TodoScreenViewModel
 
 @Composable
