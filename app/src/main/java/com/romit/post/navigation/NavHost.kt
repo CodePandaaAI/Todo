@@ -17,7 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.romit.post.screens.Screen
-import com.romit.post.screens.TodoScreen
+import com.romit.post.screens.todos.TodoScreen
 
 @Composable
 fun AppNavHost() {
