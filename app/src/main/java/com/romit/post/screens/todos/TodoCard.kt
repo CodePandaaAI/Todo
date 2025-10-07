@@ -1,5 +1,6 @@
 package com.romit.post.screens.todos
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,12 +12,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.romit.post.data.model.Task
 
 @Composable
-fun TodoCard(title: String, text: String, modifier: Modifier) {
+fun TodoCard(modifier: Modifier, task: Task, onClick: (task: Task) -> Unit) {
     Surface(
-        modifier.fillMaxWidth(),
+        modifier
+            .fillMaxWidth()
+            .clickable { onClick(task) },
         color = MaterialTheme.colorScheme.surfaceContainerLowest,
         shape = RoundedCornerShape(24.dp)
     ) {
@@ -26,14 +32,33 @@ fun TodoCard(title: String, text: String, modifier: Modifier) {
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                title,
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.SemiBold
+                task.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 5,
+                overflow = TextOverflow.Ellipsis
             )
             Text(
-                text,
-                style = MaterialTheme.typography.bodyLarge,
+                task.text,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.W400,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                maxLines = 10,
+                overflow = TextOverflow.Ellipsis
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun TodoCardPreview() {
+    TodoCard(
+        task = Task(
+            title = "Complete the project proposal",
+            text = "Finish the final draft and send it for review by EOD."
+        ),
+        modifier = Modifier,
+        onClick = {}
+    )
 }

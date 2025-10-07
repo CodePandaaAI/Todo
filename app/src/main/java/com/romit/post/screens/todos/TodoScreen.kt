@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -43,7 +44,17 @@ fun TodoScreen(
                     text,
                     onDismiss = { onDismissDialog() })
             },
-            onDismiss = { onDismissDialog() })
+            onDismiss = { onDismissDialog() },
+            modifier = Modifier.fillMaxWidth()
+        )
+    }
+    if (uiState.showEditTodoDialog && uiState.taskToEdit != null) {
+        EditTodoDialog(
+            task = uiState.taskToEdit!!,
+            isEditing = uiState.isEditInProgress,
+            onUpdateTodo = { taskId, title, text -> todoViewModel.updateTodo(taskId, title, text) },
+            onDismiss = { if (!uiState.isEditInProgress) todoViewModel.onEditComplete() }
+        )
     }
     when {
         uiState.isLoading -> {
@@ -85,7 +96,7 @@ fun TodoScreen(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(uiState.tasks) { task ->
-            TodoCard(task.title, task.text, modifier = Modifier)
+            TodoCard(modifier = Modifier, task, onClick = { todoViewModel.onEditTask(it) })
         }
     }
 }

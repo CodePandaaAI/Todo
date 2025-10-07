@@ -5,5 +5,8 @@ import com.romit.post.data.model.Task
 data class TodoScreenUiState(
     val tasks: List<Task> = emptyList(),
     val isLoading: Boolean = false,
-    val errorMessage: String? = null
+    val errorMessage: String? = null,
+    val showEditTodoDialog: Boolean = false,
+    val taskToEdit: Task?  = null,
+    val isEditInProgress: Boolean = false
 )

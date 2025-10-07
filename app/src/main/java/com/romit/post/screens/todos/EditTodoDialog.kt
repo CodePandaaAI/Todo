@@ -6,7 +6,9 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -17,36 +19,37 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.romit.post.data.model.Task
+
+// In the same file as AddTodoDialog
 
 @Composable
-fun AddTodoDialog(
-    onSaveTodo: (title: String, text: String) -> Unit,
+fun EditTodoDialog(
+    task: Task, // The task to be edited
+    onUpdateTodo: (taskId: String, title: String, text: String) -> Unit,
+    isEditing: Boolean,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    var title by remember { mutableStateOf("") }
-    var text by remember { mutableStateOf("") }
+    // Use the passed-in task's data to pre-fill the state
+    var title by remember { mutableStateOf(task.title) }
+    var text by remember { mutableStateOf(task.text) }
+
     Dialog(onDismissRequest = { onDismiss() }) {
         Surface(
             Modifier
                 .fillMaxWidth(),
             color = MaterialTheme.colorScheme.surfaceContainerLowest,
-            shape = RoundedCornerShape(24.dp)
+            shape = RoundedCornerShape(20.dp)
         ) {
             Column(
                 modifier = Modifier.padding(24.dp),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                Text(
-                    "Add Todo",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.SemiBold
-                )
+                Text("Edit Todo")
 
                 OutlinedTextField(
                     value = title,
@@ -62,25 +65,24 @@ fun AddTodoDialog(
                     onValueChange = { text = it },
                     label = { Text("Text") },
                     shape = RoundedCornerShape(20.dp),
-                    maxLines = 4,
+                    maxLines = 3,
                     modifier = modifier
                 )
 
+
                 Button(
                     onClick = {
-                        onSaveTodo(title, text)
+                        // Pass the task's original ID back
+                        onUpdateTodo(task.id, title, text)
+                        onDismiss()
                     }, enabled = !title.isBlank(),
                     modifier = modifier
                 ) {
-                    Text("Save Todo")
+                    if (isEditing) {
+                        CircularProgressIndicator()
+                    } else Text("Update Todo")
                 }
             }
         }
     }
-}
-
-@Preview
-@Composable
-fun AddTodoDialogPreview() {
-    AddTodoDialog(onSaveTodo = { _, _ -> }, onDismiss = {})
 }
