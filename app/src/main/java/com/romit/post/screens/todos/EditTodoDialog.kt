@@ -4,13 +4,11 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
@@ -25,23 +23,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.romit.post.data.model.Task
+import com.romit.post.viewmodels.todoscreen.TodoScreenViewModel
 
 // In the same file as AddTodoDialog
 
 @Composable
 fun EditTodoDialog(
+    isEditInProgress: Boolean,
     task: Task, // The task to be edited
-    onUpdateTodo: (taskId: String, title: String, text: String) -> Unit,
-    isEditing: Boolean,
-    onDismiss: () -> Unit,
-    onDelete: () -> Unit,
+    viewModel: TodoScreenViewModel,
     modifier: Modifier = Modifier
 ) {
     // Use the passed-in task's data to pre-fill the state
     var title by remember { mutableStateOf(task.title) }
     var text by remember { mutableStateOf(task.text) }
 
-    Dialog(onDismissRequest = { onDismiss() }) {
+    Dialog(onDismissRequest = { viewModel.onDialogDismissed() }) {
         Surface(
             Modifier
                 .fillMaxWidth(),
@@ -73,28 +70,31 @@ fun EditTodoDialog(
                     modifier = modifier
                 )
                 Button(
-                    onClick = { onDelete() },
-                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                    // 2. Call the ViewModel function directly
+                    onClick = { viewModel.deleteTodo(task.id) },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error), // Better styling for delete
                     modifier = modifier
                 ) {
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = "Delete Task"
-                    )
                     Text("Delete Todo")
                 }
 
+                // --- UPDATE BUTTON ---
                 Button(
                     onClick = {
-                        // Pass the task's original ID back
-                        onUpdateTodo(task.id, title, text)
-                        onDismiss()
-                    }, enabled = !title.isBlank(),
+                        // 3. CRITICAL FIX: Call the ViewModel and DO NOT call onDismiss() here.
+                        // The ViewModel's event flow will handle dismissing the dialog
+                        // only after the update is successful.
+                        viewModel.updateTodo(task.id, title, text)
+                    },
+                    enabled = title.isNotBlank(),
                     modifier = modifier
                 ) {
-                    if (isEditing) {
-                        CircularProgressIndicator()
-                    } else Text("Update Todo")
+                    // 4. Read the loading state directly from the UI state
+                    if (isEditInProgress) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary)
+                    } else {
+                        Text("Update Todo")
+                    }
                 }
             }
         }

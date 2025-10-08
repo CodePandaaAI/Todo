@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -16,6 +15,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -23,42 +23,36 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.romit.post.R
 import com.romit.post.viewmodels.todoscreen.TodoScreenViewModel
 
 @Composable
 fun TodoScreen(
     modifier: Modifier = Modifier,
-    showDialog: Boolean,
-    onDismissDialog: () -> Unit,
-    todoViewModel: TodoScreenViewModel = viewModel()
+    todoViewModel: TodoScreenViewModel
 ) {
     val uiState by todoViewModel.uiState.collectAsState()
 
-    if (showDialog) {
-        AddTodoDialog(
-            onSaveTodo = { title, text ->
-                todoViewModel.addTodo(
-                    title,
-                    text,
-                    onDismiss = { onDismissDialog() })
-            },
-            onDismiss = { onDismissDialog() },
-            modifier = Modifier.fillMaxWidth()
-        )
+    // This effect will listen for events from the ViewModel
+    LaunchedEffect(Unit) {
+        todoViewModel.eventFlow.collect {
+            // When an event is received, we know the add was successful
+            // and we can dismiss the dialog.
+            todoViewModel.onDialogDismissed()
+        }
     }
+
+    // The UI now just OBSERVES the state from the ViewModel
+    if (uiState.showAddTodoDialog) {
+        AddTodoDialog(viewModel = todoViewModel)
+    }
+
     if (uiState.showEditTodoDialog && uiState.taskToEdit != null) {
+        // The call is now simpler, just pass the ViewModel and the task
         EditTodoDialog(
+            isEditInProgress = uiState.isEditInProgress,
             task = uiState.taskToEdit!!,
-            isEditing = uiState.isEditInProgress,
-            onUpdateTodo = { taskId, title, text -> todoViewModel.updateTodo(taskId, title, text) },
-            onDelete = {
-                todoViewModel.deleteTodo(uiState.taskToEdit!!.id)
-                if (!uiState.isEditInProgress) todoViewModel.onEditComplete()
-            },
-            onDismiss = { if (!uiState.isEditInProgress) todoViewModel.onEditComplete() },
-            modifier = Modifier.fillMaxWidth()
+            viewModel = todoViewModel,
         )
     }
     when {
@@ -101,7 +95,7 @@ fun TodoScreen(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         items(uiState.tasks) { task ->
-            TodoCard(modifier = Modifier, task, onClick = { todoViewModel.onEditTask(it) })
+            TodoCard(modifier = Modifier, task, onClick = { todoViewModel.onEditTaskClicked(it) })
         }
     }
 }

@@ -8,27 +8,27 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.romit.post.screens.Screen
 import com.romit.post.screens.todos.TodoScreen
+import com.romit.post.viewmodels.todoscreen.TodoScreenViewModel
 
 @Composable
 fun AppNavHost() {
     val navController = rememberNavController()
 
-    var showAddTodoDialog by rememberSaveable { mutableStateOf(false) }
+    // We get an instance of the ViewModel here. This same instance will be
+    // automatically used by the TodoScreen when it's composed.
+    val todoViewModel: TodoScreenViewModel = viewModel()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { showAddTodoDialog = true }
+                onClick = { todoViewModel.onAddTaskClicked() }
             ) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = "Add Todo")
             }
@@ -40,9 +40,7 @@ fun AppNavHost() {
             startDestination = Screen.TodoScreen
         ) {
             composable<Screen.TodoScreen> {
-                TodoScreen(
-                    showDialog = showAddTodoDialog,
-                    onDismissDialog = { showAddTodoDialog = false })
+                TodoScreen(todoViewModel = todoViewModel)
             }
         }
     }

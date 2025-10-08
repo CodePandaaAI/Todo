@@ -21,16 +21,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.romit.post.viewmodels.todoscreen.TodoScreenViewModel
 
 @Composable
 fun AddTodoDialog(
-    onSaveTodo: (title: String, text: String) -> Unit,
-    onDismiss: () -> Unit,
+    viewModel: TodoScreenViewModel,
     modifier: Modifier = Modifier
 ) {
     var title by remember { mutableStateOf("") }
     var text by remember { mutableStateOf("") }
-    Dialog(onDismissRequest = { onDismiss() }) {
+    Dialog(onDismissRequest = { viewModel.onDialogDismissed() }) {
         Surface(
             Modifier
                 .fillMaxWidth(),
@@ -68,8 +69,12 @@ fun AddTodoDialog(
 
                 Button(
                     onClick = {
-                        onSaveTodo(title, text)
-                    }, enabled = !title.isBlank(),
+                        // 3. The save button calls the ViewModel directly.
+                        // It no longer calls onDismiss(). The ViewModel's
+                        // event flow will handle that on success.
+                        viewModel.addTodo(title, text)
+                    },
+                    enabled = title.isNotBlank(), // Simplified the enabled check
                     modifier = modifier
                 ) {
                     Text("Save Todo")
@@ -82,5 +87,5 @@ fun AddTodoDialog(
 @Preview
 @Composable
 fun AddTodoDialogPreview() {
-    AddTodoDialog(onSaveTodo = { _, _ -> }, onDismiss = {})
+    AddTodoDialog(viewModel = viewModel())
 }

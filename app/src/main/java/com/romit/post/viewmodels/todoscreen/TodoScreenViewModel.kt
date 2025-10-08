@@ -4,30 +4,37 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.firebase.Firebase
 import com.google.firebase.auth.auth
-import com.google.firebase.firestore.firestore
 import com.romit.post.data.model.Task
+import com.romit.post.data.model.TodoResult
+import com.romit.post.data.repositories.TodoRepositoryImpl
 import com.romit.post.data.uistates.TodoScreenUiState
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
 
 class TodoScreenViewModel : ViewModel() {
     private val _uiState = MutableStateFlow(TodoScreenUiState())
     val uiState = _uiState.asStateFlow()
 
-    // Reference to firestore database
-    private val firestore = Firebase.firestore
+    val todoRepository = TodoRepositoryImpl()
 
     private val currentUser = Firebase.auth.currentUser
+
+    // --- ADD A SHARED FLOW FOR ONE-TIME EVENTS ---
+    private val _eventFlow = MutableSharedFlow<Unit>()
+    val eventFlow = _eventFlow.asSharedFlow()
+    // ---------------------------------------------
 
     init {
         listenForTodoUpdates()
     }
 
-    fun addTodo(title: String, text: String, onDismiss: () -> Unit) {
-        _uiState.update { it.copy(errorMessage = null) }
+    fun addTodo(title: String, text: String) {
+        // We no longer need the onDismiss lambda
+        _uiState.update { it.copy(isEditInProgress = true) } // Show a loading indicator
         viewModelScope.launch {
             currentUser?.let { user ->
                 val newTodo = Task(
@@ -37,14 +44,15 @@ class TodoScreenViewModel : ViewModel() {
                     userId = user.uid
                 )
                 try {
-                    val newTasks = uiState.value.tasks + newTodo
-                    _uiState.update { currentState ->
-                        currentState.copy(tasks = newTasks, errorMessage = null)
-                    }
-                    firestore.collection("todos").add(newTodo).await()
-                    onDismiss()
+                    // Just call the repository. The real-time listener will handle the UI update.
+                    todoRepository.addTodo(newTodo)
+                    // On success, emit an event to tell the UI to close the dialog
+                    _eventFlow.emit(Unit)
                 } catch (e: Exception) {
                     _uiState.update { it.copy(errorMessage = e.message) }
+                } finally {
+                    // Ensure the loading indicator is turned off
+                    _uiState.update { it.copy(isEditInProgress = false) }
                 }
             }
         }
@@ -58,77 +66,90 @@ class TodoScreenViewModel : ViewModel() {
         }
         _uiState.update { it.copy(isEditInProgress = true, errorMessage = null) }
 
-        // Create a map of the fields we want to update
-        val updates = mapOf(
-            "title" to newTitle,
-            "text" to newText
-        )
         viewModelScope.launch {
-            // Get a reference to the specific document and update it
             try {
-                firestore.collection("todos").document(taskId)
-                    .update(updates).await()
+                todoRepository.updateTodo(taskId, newTitle, newText)
                 _uiState.update { it.copy(isEditInProgress = false) }
             } catch (e: Exception) {
-
             }
         }
     }
 
     fun deleteTodo(taskId: String) {
         if (taskId.isBlank()) {
-            println("Error: Task ID is blank, cannot delete.")
+            // Error: Task ID is blank, cannot delete.
             return
         }
         _uiState.update { it.copy(isEditInProgress = true, errorMessage = null) }
         viewModelScope.launch {
             try {
                 // Get a reference to the document and delete it
-                firestore.collection("todos").document(taskId).delete().await()
+                todoRepository.deleteTodo(taskId)
                 _uiState.update { it.copy(isEditInProgress = false) }
-
             } catch (e: Exception) {
 
             }
         }
     }
 
-    fun onEditTask(task: Task) {
+    // Called when the FAB is clicked
+    fun onAddTaskClicked() {
+        _uiState.update { it.copy(showAddTodoDialog = true) }
+    }
+    // Called when the user clicks on a card
+    fun onEditTaskClicked(task: Task) {
         _uiState.update { it.copy(showEditTodoDialog = true, taskToEdit = task) }
     }
 
-    fun onEditComplete() {
-        _uiState.update { it.copy(showEditTodoDialog = false, taskToEdit = null) }
+    // Called by BOTH dialogs when they are dismissed
+    fun onDialogDismissed() {
+        _uiState.update {
+            it.copy(
+                showAddTodoDialog = false,
+                showEditTodoDialog = false,
+                taskToEdit = null
+            )
+        }
     }
 
-    private fun listenForTodoUpdates() {
-        _uiState.update { it.copy(isLoading = true, errorMessage = null) }
 
+    private fun listenForTodoUpdates() {
         viewModelScope.launch {
-            currentUser?.let { user ->
-                firestore.collection("todos")
-                    .whereEqualTo("userId", user.uid)
-                    .addSnapshotListener { snapshot, error ->
-                        if (error != null) {
-                            _uiState.update {
-                                it.copy(
-                                    isLoading = false,
-                                    errorMessage = error.message
-                                )
-                            }
-                            return@addSnapshotListener
-                        }
-                        if (snapshot != null) {
-                            val tasks = snapshot.toObjects(Task::class.java)
-                            _uiState.update { currentState ->
-                                currentState.copy(
-                                    tasks = tasks,
-                                    isLoading = false,
-                                    errorMessage = null
-                                )
-                            }
+            // Telling the UI we are loading
+            _uiState.update { it.copy(isLoading = true) }
+
+            // Collecting the stream of results from the repository
+            todoRepository.getTodos().collect { result ->
+                // Checking the type of the incoming 'result'
+                when (result) {
+                    is TodoResult.Success -> {
+                        // Inside this block, Kotlin now KNOWS 'result' is a Success type,
+                        // so we can safely access the 'result.data' property.
+                        _uiState.update {
+                            it.copy(
+                                tasks = result.data,
+                                isLoading = false,
+                                errorMessage = null
+                            )
                         }
                     }
+                    is TodoResult.Failure -> {
+                        // Inside this block, Kotlin knows 'result' is a Failure type,
+                        // so we can safely access the 'result.exception' property.
+                        _uiState.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = result.exception.message
+                            )
+                        }
+                    }
+                    is TodoResult.Loading -> {
+                        // This case handles the loading state if your repository emits it.
+                        _uiState.update {
+                            it.copy(isLoading = true)
+                        }
+                    }
+                }
             }
         }
     }
