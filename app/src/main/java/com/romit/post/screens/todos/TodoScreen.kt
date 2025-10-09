@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
@@ -53,6 +54,7 @@ fun TodoScreen(
             isEditInProgress = uiState.isEditInProgress,
             task = uiState.taskToEdit!!,
             viewModel = todoViewModel,
+            modifier = Modifier.fillMaxWidth()
         )
     }
     when {
