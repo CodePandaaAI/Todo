@@ -2,13 +2,16 @@ package com.romit.post.navigation
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,9 +26,10 @@ fun AppNavHost() {
 
     // We get an instance of the ViewModel here. This same instance will be
     // automatically used by the TodoScreen when it's composed.
-    val todoViewModel: TodoScreenViewModel = viewModel()
+    val todoViewModel: TodoScreenViewModel = hiltViewModel()
     Scaffold(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier.fillMaxSize().statusBarsPadding(),
+        contentColor = MaterialTheme.colorScheme.surfaceContainer,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { todoViewModel.onAddTaskClicked() }

@@ -19,7 +19,9 @@ import com.google.firebase.auth.FirebaseUser
 import com.romit.post.navigation.AppNavHost
 import com.romit.post.screens.auth.AuthScreen
 import com.romit.post.ui.theme.PostTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,8 +34,7 @@ class MainActivity : ComponentActivity() {
                     Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
                         AuthScreen(modifier = Modifier.padding(innerPadding))
                     }
-                }
-                else {
+                } else {
                     AppNavHost()
                 }
             }

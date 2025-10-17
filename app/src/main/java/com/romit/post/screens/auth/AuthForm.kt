@@ -65,6 +65,7 @@ fun AuthForm(
                 value = email,
                 onValueChange = onEmailChange,
                 label = { Text("Email") },
+                maxLines = 1,
                 modifier = Modifier.fillMaxWidth()
             )
 

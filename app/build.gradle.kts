@@ -1,11 +1,14 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
+
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.gms.google-services")
     id("org.jetbrains.kotlin.plugin.serialization")
+    id("com.google.devtools.ksp")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -47,6 +50,19 @@ android {
 }
 
 dependencies {
+    // Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.android.compiler)
+    implementation(libs.androidx.hilt.navigation.compose)
+
+    // Room
+
+    implementation(libs.androidx.room.runtime)
+
+    // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
+    // See Add the KSP plugin to your project
+    ksp(libs.androidx.room.compiler)
+
     // Serialization
     implementation(libs.kotlinx.serialization.json)
     // Navigation
@@ -65,12 +81,6 @@ dependencies {
 
     // Dependency for Cloud Firestore
     implementation(libs.firebase.firestore)
-
-//    // Retrofit for making network requests (the "API client")
-//    implementation(libs.retrofit)
-//
-//    // Gson converter to turn JSON from the internet into Kotlin objects
-//    implementation(libs.converter.gson)
 
     // Core Android & Compose dependencies
     implementation(libs.androidx.core.ktx)
