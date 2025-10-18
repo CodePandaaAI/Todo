@@ -16,30 +16,32 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.romit.post.data.model.Task
-
 @Composable
-fun TodoCard(modifier: Modifier, task: Task, onClick: (task: Task) -> Unit) {
+fun TodoCard(
+    modifier: Modifier = Modifier,
+    task: Task,
+    onClick: (Task) -> Unit
+) {
     Surface(
-        modifier
+        modifier = modifier
             .fillMaxWidth()
             .clickable { onClick(task) },
         color = MaterialTheme.colorScheme.surfaceContainerLowest,
         shape = RoundedCornerShape(24.dp)
     ) {
-
         Column(
             modifier = Modifier.padding(12.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Text(
-                task.title,
+                text = task.title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
                 maxLines = 5,
                 overflow = TextOverflow.Ellipsis
             )
             Text(
-                task.text,
+                text = task.text,
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.W400,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,

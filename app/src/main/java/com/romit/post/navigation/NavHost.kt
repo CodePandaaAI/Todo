@@ -12,7 +12,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -23,18 +22,21 @@ import com.romit.post.viewmodels.todoscreen.TodoScreenViewModel
 @Composable
 fun AppNavHost() {
     val navController = rememberNavController()
-
-    // We get an instance of the ViewModel here. This same instance will be
-    // automatically used by the TodoScreen when it's composed.
     val todoViewModel: TodoScreenViewModel = hiltViewModel()
+
     Scaffold(
-        modifier = Modifier.fillMaxSize().statusBarsPadding(),
-        contentColor = MaterialTheme.colorScheme.surfaceContainer,
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding(),
+        containerColor = MaterialTheme.colorScheme.surfaceContainer,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { todoViewModel.onAddTaskClicked() }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Add Todo")
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = "Add Todo"
+                )
             }
         }
     ) { innerPadding ->

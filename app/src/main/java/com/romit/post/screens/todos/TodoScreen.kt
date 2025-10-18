@@ -34,22 +34,17 @@ fun TodoScreen(
 ) {
     val uiState by todoViewModel.uiState.collectAsState()
 
-    // This effect will listen for events from the ViewModel
     LaunchedEffect(Unit) {
         todoViewModel.eventFlow.collect {
-            // When an event is received, we know the add was successful
-            // and we can dismiss the dialog.
             todoViewModel.onDialogDismissed()
         }
     }
 
-    // The UI now just OBSERVES the state from the ViewModel
     if (uiState.showAddTodoDialog) {
         AddTodoDialog(viewModel = todoViewModel)
     }
 
     if (uiState.showEditTodoDialog && uiState.taskToEdit != null) {
-        // The call is now simpler, just pass the ViewModel and the task
         EditTodoDialog(
             isEditInProgress = uiState.isEditInProgress,
             task = uiState.taskToEdit!!,
@@ -57,47 +52,50 @@ fun TodoScreen(
             modifier = Modifier.fillMaxWidth()
         )
     }
+
     when {
         uiState.isLoading -> {
             Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
-            return
         }
 
         uiState.errorMessage != null -> {
             Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                 Text(uiState.errorMessage!!)
             }
-            return
         }
-    }
 
-    if (uiState.tasks.isEmpty()) {
-        Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            Image(
-                painter = painterResource(R.drawable.no_todo),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(250.dp)
-                    .clip(
-                        CircleShape
-                    )
-            )
+        uiState.tasks.isEmpty() -> {
+            Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Image(
+                    painter = painterResource(R.drawable.no_todo),
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(250.dp)
+                        .clip(CircleShape)
+                )
+            }
         }
-        return
-    }
-    LazyVerticalStaggeredGrid(
-        modifier = modifier
-            .background(MaterialTheme.colorScheme.surfaceContainer)
-            .fillMaxSize(),
-        columns = StaggeredGridCells.Fixed(2),
-        contentPadding = PaddingValues(8.dp),
-        verticalItemSpacing = 8.dp,
-        horizontalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(uiState.tasks) { task ->
-            TodoCard(modifier = Modifier, task, onClick = { todoViewModel.onEditTaskClicked(it) })
+
+        else -> {
+            LazyVerticalStaggeredGrid(
+                modifier = modifier
+                    .background(MaterialTheme.colorScheme.surfaceContainer)
+                    .fillMaxSize(),
+                columns = StaggeredGridCells.Fixed(2),
+                contentPadding = PaddingValues(8.dp),
+                verticalItemSpacing = 8.dp,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(uiState.tasks, key = { it.id }) { task ->
+                    TodoCard(
+                        modifier = Modifier,
+                        task = task,
+                        onClick = { todoViewModel.onEditTaskClicked(it) }
+                    )
+                }
+            }
         }
     }
 }

@@ -31,10 +31,10 @@ fun AddTodoDialog(
 ) {
     var title by remember { mutableStateOf("") }
     var text by remember { mutableStateOf("") }
+
     Dialog(onDismissRequest = { viewModel.onDialogDismissed() }) {
         Surface(
-            Modifier
-                .fillMaxWidth(),
+            modifier = Modifier.fillMaxWidth(),
             color = MaterialTheme.colorScheme.surfaceContainerLowest,
             shape = RoundedCornerShape(24.dp)
         ) {
@@ -44,7 +44,7 @@ fun AddTodoDialog(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    "Add Todo",
+                    text = "Add Todo",
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.SemiBold
                 )
@@ -68,13 +68,8 @@ fun AddTodoDialog(
                 )
 
                 Button(
-                    onClick = {
-                        // 3. The save button calls the ViewModel directly.
-                        // It no longer calls onDismiss(). The ViewModel's
-                        // event flow will handle that on success.
-                        viewModel.addTodo(title, text)
-                    },
-                    enabled = title.isNotBlank(), // Simplified the enabled check
+                    onClick = { viewModel.addTodo(title, text) },
+                    enabled = title.isNotBlank(),
                     modifier = modifier
                 ) {
                     Text("Save Todo")
